@@ -1,7 +1,11 @@
 const fs = require('fs');
 const express = require('express');
+const morgan = require('morgan');
 
 const app = express();
+
+//// 1) MIDDLEWARE
+app.use(morgan('dev'));
 
 //// using middleware - modify the incoming data - app uses that middleware
 app.use(express.json());
@@ -24,6 +28,7 @@ const tours = JSON.parse(
   fs.readFileSync(`${__dirname}/dev-data/data/tours-simple.json`)
 );
 
+//// 2) ROUTES HANDLER
 const getAllTours =  (req, res) => {
   console.log("current time", req.requestTime)
   res.status(200).json({
@@ -108,6 +113,7 @@ const deleteTour = (req, res) => {
   })
 }
 
+//// 3) ROUTES
 //// Always should specify the version
 //// GET all the  tour
 //app.get('/api/v1/tours', getAllTours);
@@ -128,6 +134,7 @@ const deleteTour = (req, res) => {
 app.route('/api/v1/tours').get(getAllTours).post(createTour);
 app.route('/api/v1/tours/:id').get(getTour).patch(updateTour).delete(deleteTour);
 
+//// 4) START SERVER
 const port = 3000;
 app.listen(port, () => {
   console.log(`App running on port ${port}...`)
