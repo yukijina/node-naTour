@@ -21,7 +21,31 @@ const tours = JSON.parse(
 );
 
 //// Always shoud specify the version
-//// GET
+//// GET all the tours
+app.get('/api/v1/tours/:id', (req, res) => {
+  console.log(req.params)
+  // req.params id is string. To change it to number, we multiply by 1. It converts to number.
+  const id = req.params.id * 1;
+  const tour = tours.find(el => el.id === id);
+
+  /// When params Id is not valid (like: id: 101 - no data exsits)
+  //if(id > tours.length) {
+  if(!tour) {
+    return res.status(404).json({
+      status: 'fail',
+      message: 'Invalid ID'
+    })
+  }
+  
+  res.status(200).json({
+    status: 'success',
+    data: {
+      tour  // tour:: tour
+    }
+  });
+});
+
+//// GET one tour
 app.get('/api/v1/tours', (req, res) => {
   res.status(200).json({
     status: 'success',
@@ -31,6 +55,7 @@ app.get('/api/v1/tours', (req, res) => {
     }
   });
 });
+
 
 //// POST
 app.post('/api/v1/tours', (req, res) => {
