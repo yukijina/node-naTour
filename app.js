@@ -6,23 +6,22 @@ const app = express();
 //// middleware - modify the incoming data - app uses that middleware
 app.use(express.json());
 
-/////// Basic 
-// app.get('/', (req, res) => {
-//   res.status(200).json({message: 'Hello from the server side!', app: "Natours"});
-// });
-
-// app.post('/', (req,res) => {
-//   res.send('You can post to this endpoint...')
-// })
-
 // Top Level code - execute only once - Synchronous
 const tours = JSON.parse(
   fs.readFileSync(`${__dirname}/dev-data/data/tours-simple.json`)
 );
 
-//// Always shoud specify the version
-//// GET all the tours
-app.get('/api/v1/tours/:id', (req, res) => {
+const getAllTours =  (req, res) => {
+  res.status(200).json({
+    status: 'success',
+    results: tours.length, //not necessary but it is good to know how many data(tours) json has
+    data: {
+      tours  //(shorthand of tours: tours - 2nd tours are variable name tours/line19)
+    }
+  });
+}
+
+const getTour = (req, res) => {
   console.log(req.params)
   // req.params id is string. To change it to number, we multiply by 1. It converts to number.
   const id = req.params.id * 1;
@@ -43,22 +42,9 @@ app.get('/api/v1/tours/:id', (req, res) => {
       tour  // tour:: tour
     }
   });
-});
+}
 
-//// GET one tour
-app.get('/api/v1/tours', (req, res) => {
-  res.status(200).json({
-    status: 'success',
-    results: tours.length, //not necessary but it is good to know how many data(tours) json has
-    data: {
-      tours  //(shorthand of tours: tours - 2nd tours are variable name tours/line19)
-    }
-  });
-});
-
-
-//// POST
-app.post('/api/v1/tours', (req, res) => {
+const createTour = (req, res) => {
   //console.log(req.body);
   const newId = tours[tours.length - 1].id + 1;
   const newTour = Object.assign({id: newId}, req.body);
@@ -75,10 +61,9 @@ app.post('/api/v1/tours', (req, res) => {
       }
     });
   });
-});
+}
 
-// Update the data - patch (only update the property, put changes entire data)
-app.patch(`/api/v1/tours/:id`, (req, res) => {
+const updateTour = (req, res) => {
   if(req.params.id * 1 > tours.length) {
     return res.status(404).json({
       status: 'fail',
@@ -92,10 +77,9 @@ app.patch(`/api/v1/tours/:id`, (req, res) => {
       tour: '<Updated tour here...>'
     }
   })
-})
+}
 
-// Delete the data 
-app.delete(`/api/v1/tours/:id`, (req, res) => {
+const deleteTour = (req, res) => {
   if(req.params.id * 1 > tours.length) {
     return res.status(404).json({
       status: 'fail',
@@ -107,7 +91,27 @@ app.delete(`/api/v1/tours/:id`, (req, res) => {
     status: 'success',
     data: null // the data no longer exsit because we deleted
   })
-})
+}
+
+//// Always should specify the version
+//// GET all the  tour
+//app.get('/api/v1/tours', getAllTours);
+
+//// GET one tour
+//app.get('/api/v1/tours/:id', getTour);
+
+//// POST
+//app.post('/api/v1/tours', createTour);
+
+// Update the data - patch (only update the property, put changes entire data)
+//app.patch(`/api/v1/tours/:id`, updateTour);
+
+// Delete the data 
+//app.delete(`/api/v1/tours/:id`, deleteTour);
+
+/// Refactor
+app.route('/api/v1/tours').get(getAllTours).post(createTour);
+app.route('/api/v1/tours/:id').get(getTour).patch(updateTour).delete(deleteTour);
 
 const port = 3000;
 app.listen(port, () => {
