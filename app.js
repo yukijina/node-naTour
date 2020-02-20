@@ -3,8 +3,21 @@ const express = require('express');
 
 const app = express();
 
-//// middleware - modify the incoming data - app uses that middleware
+//// using middleware - modify the incoming data - app uses that middleware
 app.use(express.json());
+
+//// middleware function
+//// argumnets are the ones that you want to add to middleware stack
+//// this applied to every single request
+app.use((req, res, next) => {
+  console.log('Hello from the middleware!');
+  next();
+})
+
+app.use((req, res, next) => {
+  req.requestTime = new Date().toISOString();
+  next()
+})
 
 // Top Level code - execute only once - Synchronous
 const tours = JSON.parse(
@@ -12,8 +25,10 @@ const tours = JSON.parse(
 );
 
 const getAllTours =  (req, res) => {
+  console.log("current time", req.requestTime)
   res.status(200).json({
     status: 'success',
+    requestedAt: req.requestTime,
     results: tours.length, //not necessary but it is good to know how many data(tours) json has
     data: {
       tours  //(shorthand of tours: tours - 2nd tours are variable name tours/line19)
