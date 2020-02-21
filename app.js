@@ -7,10 +7,14 @@ const userRouter = require('./routes/userRoutes');
 const app = express();
 
 //// 1) MIDDLEWARE
-app.use(morgan('dev'));
+if(process.env.NODE_ENV === 'development') {
+  app.use(morgan('dev'));
+}
 
 //// using middleware - modify the incoming data - app uses that middleware
 app.use(express.json());
+
+app.use(express.static(`${__dirname}/public`));
 
 //// middleware function
 //// argumnets are the ones that you want to add to middleware stack - morgan
