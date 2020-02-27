@@ -5,7 +5,7 @@ const router = express.Router();
 
 // check if params has appropriate Id
 // val stands for value - it holds the parameter
-router.param('id', tourController.checkID);
+//router.param('id', tourController.checkID);
 
 // Create a checkBody Parameter
 
@@ -15,16 +15,15 @@ router.param('id', tourController.checkID);
 
 // Add it to the post handler stack
 
+router
+  .route('/')
+  .get(tourController.getAllTours)
+  .post(tourController.createTour);
 
- router
- .route('/')
- .get(tourController.getAllTours)
- .post(tourController.checkBody, tourController.createTour); 
- 
- router
- .route('/:id')
- .get(tourController.getTour)
- .patch(tourController.updateTour)
- .delete(tourController.deleteTour);
+router
+  .route('/:id')
+  .get(tourController.getTour)
+  .patch(tourController.updateTour)
+  .delete(tourController.deleteTour);
 
- module.exports = router;
+module.exports = router;

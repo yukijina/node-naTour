@@ -1,8 +1,10 @@
 const mongoose = require('mongoose');
 const dotenv = require('dotenv');
-const app = require('./app');
-
+// config path - path is for the configuration file is located - read the file and save as environment variable
 dotenv.config({ path: './config.env' });
+
+// dotenv should be above app, so that app can read environment variable
+const app = require('./app');
 
 const DB = process.env.DATABASE.replace(
   '<PASSWORD>',
@@ -17,40 +19,6 @@ mongoose
     useFindAndModify: false
   })
   .then(() => console.log('DB connection successful!'));
-
-const tourSchema = new mongoose.Schema({
-  name: {
-    type: String,
-    required: [true, 'A tour must have a name'],
-    unique: true
-  },
-  rating: {
-    type: Number,
-    default: 4.5
-  },
-  price: {
-    type: Number,
-    required: [true, 'A tour mast have a price']
-  }
-});
-
-// Model uses uppercase - convention
-const Tour = mongoose.model('Tour', tourSchema);
-
-const testTour = new Tour({
-  name: 'Amazing Grace',
-  price: 787
-});
-
-// save the documents to detabase
-testTour
-  .save()
-  .then(doc => {
-    console.log(doc);
-  })
-  .catch(err => {
-    console.log('Error!!: ', err);
-  });
 
 const port = process.env.PORT || 3000;
 app.listen(port, () => {
