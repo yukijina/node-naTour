@@ -54,6 +54,17 @@ exports.getAllTours = async (req, res) => {
       query.sort('-createdAt');
     }
 
+    //// 3) Field limiting
+    // url 127.0.0.01:3000/api/v1/tours?fields=name, duration,difficulty,price => display only the selected data
+    if (req.query.fields) {
+      const fields = req.query.fields.split(',').join(' ');
+      query = query.select(fields);
+    } else {
+      // remove __v data -> it removes not only fields is empty but also field has params
+      // - meaningn NOT include. --v is automatically added to mongoose db just because mongoose use this data.
+      query = query.select('-__v');
+    }
+
     ///// EXECUTE QUERY
     const tours = await query;
 
