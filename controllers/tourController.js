@@ -17,7 +17,7 @@ exports.getAllTours = async (req, res) => {
     //   .where('difficulty')
     //   .equals('easy');
 
-    //// 1) Filtering
+    //// 1A) Filtering
     //// we don't want to change the actual query so copy ot.
     const queryObj = { ...req.query };
     // prevent unnecessary input
@@ -27,7 +27,7 @@ exports.getAllTours = async (req, res) => {
     console.log('req.query: ', req.query, 'queryObj: ', queryObj);
     //const query = Tour.find(queryObj);
 
-    //// 2) Advanced filtering
+    //// 1B) Advanced filtering
     /// greater and less than query
     /// 127.0.0.01:3000/api/v1/tours?duration[gte]=5
     // shoud be: { difficulty: 'easy}, duration { $gte: 5 } }
@@ -39,7 +39,20 @@ exports.getAllTours = async (req, res) => {
     queryStr = queryStr.replace(/\b(gte|gt|let|lt)\b/g, match => `$${match}`);
     console.log(JSON.parse(queryStr));
 
-    const query = Tour.find(JSON.parse(queryStr));
+    let query = Tour.find(JSON.parse(queryStr));
+
+    //// 2) Sorting
+    // url is like: 127.0.0.01:3000/api/v1/tours?sort=price => price sorted row to high
+    // url 127.0.0.01:3000/api/v1/tours?sort=-price => sort other way high to low
+    if (req.query.sort) {
+      // sort is method from mongoose
+      // sort several items - 127.0.0.01:3000/api/v1/tours?sort=-price, ratingAverage => return sort('price ratingsAverage')
+      const sortBy = req.query.sort.split(',').join(' ');
+      query = query.sort(sortBy);
+    } else {
+      // if there is no sort params, it sorted by createdAt new to old
+      query.sort('-createdAt');
+    }
 
     ///// EXECUTE QUERY
     const tours = await query;
