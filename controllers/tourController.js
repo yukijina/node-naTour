@@ -17,6 +17,7 @@ exports.getAllTours = async (req, res) => {
     //   .where('difficulty')
     //   .equals('easy');
 
+    //// 1) Filtering
     //// we don't want to change the actual query so copy ot.
     const queryObj = { ...req.query };
     // prevent unnecessary input
@@ -24,8 +25,21 @@ exports.getAllTours = async (req, res) => {
     excludeFields.forEach(el => delete queryObj[el]);
     // make sure if the original query is not revised
     console.log('req.query: ', req.query, 'queryObj: ', queryObj);
+    //const query = Tour.find(queryObj);
 
-    const query = Tour.find(queryObj);
+    //// 2) Advanced filtering
+    /// greater and less than query
+    /// 127.0.0.01:3000/api/v1/tours?duration[gte]=5
+    // shoud be: { difficulty: 'easy}, duration { $gte: 5 } }
+    // but it returns: (without $){ difficulty: 'easy}, duration { gte: '5' } }
+
+    let queryStr = JSON.stringify(queryObj);
+    // \b - exact match \g - replace all matches. Replace accepts callback
+    // ${match} is template string. first $ is actually add/replace with $
+    queryStr = queryStr.replace(/\b(gte|gt|let|lt)\b/g, match => `$${match}`);
+    console.log(JSON.parse(queryStr));
+
+    const query = Tour.find(JSON.parse(queryStr));
 
     ///// EXECUTE QUERY
     const tours = await query;
