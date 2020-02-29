@@ -65,8 +65,23 @@ exports.getAllTours = async (req, res) => {
       query = query.select('-__v');
     }
 
+    /// 4) Pagination
+    /// *1 can change string to number. after || => default number is 1
+    const page = req.query.page * 1 || 1;
+    const limit = req.query.limit * 1 || 100;
+    const skip = (page - 1) * limit; // page-1 means previous page
+    /// page=2&limit=10  page1 1-10, page2 11-20 so we need to skip first 10 to display page 2 (11th data)
+    query = query.skip(skip).limit(limit);
+
+    if (req.query.page) {
+      // countDocuments - Mongoose function. It returns the amount of tours
+      const numTours = await Tour.countDocuments();
+      if (skip >= numTours) throw new Error('This page does not exist');
+    }
+
     ///// EXECUTE QUERY
     const tours = await query;
+    //query.sort().select().skip().limit() - it returns each method and chain to next.
 
     //// SEND RESPONSE
     res.status(200).json({
