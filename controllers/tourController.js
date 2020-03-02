@@ -190,6 +190,47 @@ exports.deleteTour = async (req, res) => {
   }
 };
 
+//// Aggragation pipeline (Mongoose)
+exports.getTourStats = async (req, res) => {
+  try {
+    const stats = await Tour.aggregate([
+      {
+        $match: { ratingsAverage: { $gte: 4.5 } }
+      },
+      {
+        // group documents together - like calcurate average
+        $group: {
+          //_id: null, //what we want to group by - ex.you can replace null to '$difficulty' to group by difficulty
+          _id: { $toUpper: '$difficulty' },
+          numTours: { $sum: 1 }, // each document go through this pipline, 1 is adding to this counter(numTours)
+          numRatings: { $sum: '$ratingsQuantity' },
+          avgRating: { $avg: '$ratingsAverage' },
+          avgPrice: { $avg: '$price' },
+          minPrice: { $min: '$price' },
+          maxPrice: { $max: '$price' }
+        }
+      },
+      {
+        $sort: { avgPrice: 1 } //1 - ascending
+      },
+      {
+        $match: { _id: { $ne: 'EASY' } } //$ne - not equal
+      }
+    ]);
+    res.status(200).json({
+      status: 'success',
+      data: {
+        stats
+      }
+    });
+  } catch (err) {
+    res.status(404).json({
+      status: 'fail',
+      message: err
+    });
+  }
+};
+
 /////************* */ Before connecting with database
 /// Top Level code - execute only once - Synchronous - this is for testing purpose..
 // const tours = JSON.parse(
