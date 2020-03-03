@@ -195,6 +195,7 @@ exports.getTourStats = async (req, res) => {
   try {
     const stats = await Tour.aggregate([
       {
+        // $match is select a document
         $match: { ratingsAverage: { $gte: 4.5 } }
       },
       {
@@ -202,7 +203,8 @@ exports.getTourStats = async (req, res) => {
         $group: {
           //_id: null, //what we want to group by - ex.you can replace null to '$difficulty' to group by difficulty
           _id: { $toUpper: '$difficulty' },
-          numTours: { $sum: 1 }, // each document go through this pipline, 1 is adding to this counter(numTours)
+          // each document go through this pipline, 1 is adding to this counter(numTours) => result - total number of tours
+          numTours: { $sum: 1 },
           numRatings: { $sum: '$ratingsQuantity' },
           avgRating: { $avg: '$ratingsAverage' },
           avgPrice: { $avg: '$price' },
@@ -211,7 +213,7 @@ exports.getTourStats = async (req, res) => {
         }
       },
       {
-        $sort: { avgPrice: 1 } //1 - ascending
+        $sort: { avgPrice: 1 } //"1" for ascending, "-1" for descending
       },
       {
         $match: { _id: { $ne: 'EASY' } } //$ne - not equal
@@ -221,6 +223,63 @@ exports.getTourStats = async (req, res) => {
       status: 'success',
       data: {
         stats
+      }
+    });
+  } catch (err) {
+    res.status(404).json({
+      status: 'fail',
+      message: err
+    });
+  }
+};
+
+exports.getMonthlyPlan = async (req, res) => {
+  try {
+    const year = req.params.year * 1;
+
+    const plan = await Tour.aggregate([
+      {
+        // unwind - diconstract array field from input field to each document
+        // => startData has 3 strings in array. by unwind, it create each object
+        $unwind: '$startDates'
+      },
+      {
+        $match: {
+          startDates: {
+            $gte: new Date(`${year}-01-01`),
+            $lte: new Date(`${year}-12-31`)
+          }
+        }
+      },
+      {
+        $group: {
+          // check Mongoose aggregation operator
+          _id: { $month: '$startDates' },
+          numTourStarts: { $sum: 1 },
+          // $push creates array => {tours: [ "they Sea Explorer", "The Park Camper"]}
+          tours: { $push: '$name' }
+        }
+      },
+      {
+        $addFields: { month: '$_id' }
+      },
+      {
+        // project - not display selected document (in this case, _id. because we add fields of Month so we hide _id. )
+        $project: { _id: 0 }
+      },
+      {
+        $sort: { numTourStarts: -1 } //-1 descending
+      },
+      {
+        // limit the number of documents displayed
+        $limit: 12
+      }
+    ]);
+
+    res.status(200).json({
+      status: 'success',
+      data: {
+        plan
       }
     });
   } catch (err) {
