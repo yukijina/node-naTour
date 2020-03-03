@@ -54,7 +54,11 @@ const tourSchema = new mongoose.Schema(
       default: Date.now(),
       select: false //=> hide from api data
     },
-    startDates: [Date]
+    startDates: [Date],
+    secretTour: {
+      type: Boolean,
+      default: false //defaul secret tours are not secret
+    }
   },
   {
     // virtuals true => it displays virtual schema
@@ -92,6 +96,21 @@ tourSchema.pre('save', function(next) {
 //   console.log(doc);
 //   next();
 // });
+
+//// QUERY MIDDLEWARE - Hook is find in this case. "this" keyword is pointing query not the document.
+// /^find/ - regular expression (no need quotation), When we rquest one tour like get/:id, we use "findById" function so by useing /^/, it can be used for find or findOne (tourController line 121) & Mongoose doc
+tourSchema.pre(/^find/, function(next) {
+  //tourSchema.pre('find', function(next) {
+  //"this" is pointing query object
+  this.find({ secretTour: { $ne: true } });
+  next();
+});
+
+//just to show
+tourSchema.post(/^find/, function(docs, next) {
+  console.log(docs);
+  next();
+});
 
 // Model uses uppercase - convention
 const Tour = mongoose.model('Tour', tourSchema);
