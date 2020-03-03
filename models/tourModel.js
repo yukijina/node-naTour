@@ -1,5 +1,6 @@
 const mongoose = require('mongoose');
 const slugify = require('slugify');
+const validator = require('validator');
 
 const tourSchema = new mongoose.Schema(
   {
@@ -10,6 +11,7 @@ const tourSchema = new mongoose.Schema(
       trim: true,
       maxlength: [40, 'A tour name must have less or equal than 40 characters'], // 1st valus means max 40
       minlength: [10, 'A tour name must have less or equal than 40 characters']
+      //validate: [validator.isAlpha, 'Tour name must only contain charactors'] =>it validates space too so it is not good idea to validate here. Just for example
     },
     slug: String,
     duration: {
@@ -43,7 +45,18 @@ const tourSchema = new mongoose.Schema(
       type: Number,
       required: [true, 'A tour mast have a price']
     },
-    priceDiscount: Number,
+    priceDiscount: {
+      type: Number,
+      validate: {
+        validator: function(value) {
+          //if price discount value is less than price, value is ok/validated.
+          // this only points to current doc on NEW document creation
+          return value < this.prce;
+        },
+        ///({VALUE}) is the value that a user input (mongoose function)
+        message: 'Discount price ({VALUE}) shoud e below regular price'
+      }
+    },
     summary: {
       type: String,
       trim: true,
