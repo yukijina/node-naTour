@@ -116,6 +116,7 @@ tourSchema.post(/^find/, function(docs, next) {
 //// AGGREGATION MIDDLEWARE
 /// this is poiting current aggregation
 tourSchema.pre('aggregate', function(next) {
+  // Here, we are trying not to display secretTour when aggragation (like route: /tour-starts) is requested.
   this.pipeline().unshift({ $match: { secretTour: { $ne: true } } });
   console.log(('aggregate: ', this));
   next();
