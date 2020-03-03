@@ -103,12 +103,21 @@ tourSchema.pre(/^find/, function(next) {
   //tourSchema.pre('find', function(next) {
   //"this" is pointing query object
   this.find({ secretTour: { $ne: true } });
+  this.start = Date.now();
   next();
 });
 
-//just to show
+//just to show how post works
 tourSchema.post(/^find/, function(docs, next) {
-  console.log(docs);
+  console.log(`Query took ${Date.now() - this.start} milliseconds!`);
+  next();
+});
+
+//// AGGREGATION MIDDLEWARE
+/// this is poiting current aggregation
+tourSchema.pre('aggregate', function(next) {
+  this.pipeline().unshift({ $match: { secretTour: { $ne: true } } });
+  console.log(('aggregate: ', this));
   next();
 });
 
