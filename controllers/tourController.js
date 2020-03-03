@@ -149,7 +149,7 @@ exports.createTour = async (req, res) => {
   } catch (err) {
     res.status(400).json({
       status: 'fail',
-      message: 'Invalid data'
+      message: err
     });
   }
 };
@@ -157,8 +157,8 @@ exports.createTour = async (req, res) => {
 exports.updateTour = async (req, res) => {
   try {
     const tour = await Tour.findByIdAndUpdate(req.params.id, req.body, {
-      new: true,
-      runValidators: true
+      new: true, //after update, it returns the documents
+      runValidators: true // if you make it false, validation does not work
     });
     res.status(200).json({
       status: 'success',
@@ -169,7 +169,7 @@ exports.updateTour = async (req, res) => {
   } catch (err) {
     res.status(404).json({
       status: 'Fail',
-      message: 'Invalid'
+      message: err
     });
   }
 };
