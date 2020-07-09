@@ -59,7 +59,7 @@ const tourSchema = new mongoose.Schema(
     },
     summary: {
       type: String,
-      trim: true,
+      trim: true, // trims beginning and the end of white space (not in the middle)
       required: [true, 'A tour must have a summary']
     },
     description: {
