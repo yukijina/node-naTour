@@ -1,5 +1,13 @@
 const mongoose = require('mongoose');
 const dotenv = require('dotenv');
+
+// This code should be here on top. Sync error  - The msg does NOT WORK - should fix later
+process.on('uncoughtException', err => {
+  console.log(err);
+  console.log('UNCAUGHT. Shutting down...');
+  console.log(err.name, err.message);
+});
+
 // config path - path is for the configuration file is located - read the file and save as environment variable
 dotenv.config({ path: './config.env' });
 
@@ -21,6 +29,17 @@ mongoose
   .then(() => console.log('DB connection successful!'));
 
 const port = process.env.PORT || 3000;
-app.listen(port, () => {
+const server = app.listen(port, () => {
   console.log(`App running on port ${port}...`);
+});
+
+// This code should be here on top. Sync error  - The msg does NOT WORK - should fix later
+// database connection error - shut down serer
+// In production, we need to restart server once it crushes. Coordinate with host.
+process.on('unhandleRehection', err => {
+  console.log('UNHANDLED REJECTION. Shutting down...');
+  console.log(err.name, err.message);
+  server.close(() => {
+    process.exit(1);
+  });
 });
