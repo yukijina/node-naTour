@@ -1,5 +1,6 @@
 const mongoose = require('mongoose');
 const validator = require('validator');
+const bcrypt = require('bcryptjs');
 
 const userSchema = new mongoose.Schema({
   name: {
@@ -30,6 +31,17 @@ const userSchema = new mongoose.Schema({
       message: 'Passwords are not the same.'
     }
   }
+});
+
+userSchema.pre('save', async function(next) {
+  // Only run this function if password was modified
+  if (!this.isModified('password')) return next();
+  // There is two ways to create hash. 1)create salt and add to the hash 2)add number 12(salt round) to the 2nd argument
+  // We do asyn for this - This is because the hashing done by bcrypt is CPU intensive, so the sync version will block the event loop and prevent your application from servicing any other inbound requests or events.
+  this.password = await bcrypt.hash(this.password, 12); // encrypt password
+
+  this.passwordConfirm = undefined; // We do not need this field
+  next();
 });
 
 const User = mongoose.model('User', userSchema);
