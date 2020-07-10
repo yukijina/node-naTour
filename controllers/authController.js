@@ -1,3 +1,4 @@
+const { promisify } = require('util'); //node_module built-in function util.promisify
 const jwt = require('jsonwebtoken');
 const User = require('./../models/userModel');
 const catchAsync = require('./../utils/catchAsync');
@@ -51,4 +52,47 @@ exports.login = catchAsync(async (req, res, next) => {
     status: 'succcess',
     token
   });
+});
+
+// Protecte route middleware runction
+exports.protect = catchAsync(async (req, res, next) => {
+  // 1) Getting token and check of it's there
+  let token;
+  if (
+    req.headers.authorization &&
+    req.headers.authorization.startsWith('Bearer')
+  ) {
+    token = req.headers.authorization.split(' ')[1];
+  }
+
+  if (!token) {
+    return next(
+      new AppError('You are not logged in. Please log in to get access', 401)
+    );
+  }
+  // 2) Verification token - .verify returns promise
+  const decoded = await promisify(jwt.verify)(token, process.env.JWT_SECRET);
+  // decoded returns like this:
+  // Promise {{ id: '5f07de0f2708af6151e33d62', iat: 1594400952, exp: 1602176952 }}
+
+  // 3) Check if user still exists - Make sure nobody changes the token in unsafety manner
+  // You can see the error message by deleting user from db after the user login
+  const freshUser = await User.findById(decoded.id);
+  if (!freshUser) {
+    return next(
+      new AppError('The user belongs this token no longer exits', 401)
+    );
+  }
+  // 4) Check if user chnaged password after the token was issued
+  if (freshUser.changedPasswordAfter(decoded.iat)) {
+    return next(
+      new AppError(
+        'User recently changed password password. Please login again',
+        401
+      )
+    );
+  }
+  // Grant access to protected route
+  req.user = freshUser;
+  next();
 });
