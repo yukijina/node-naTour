@@ -77,14 +77,14 @@ exports.protect = catchAsync(async (req, res, next) => {
 
   // 3) Check if user still exists - Make sure nobody changes the token in unsafety manner
   // You can see the error message by deleting user from db after the user login
-  const freshUser = await User.findById(decoded.id);
-  if (!freshUser) {
+  const currentUser = await User.findById(decoded.id);
+  if (!currentUser) {
     return next(
       new AppError('The user belongs this token no longer exits', 401)
     );
   }
   // 4) Check if user chnaged password after the token was issued
-  if (freshUser.changedPasswordAfter(decoded.iat)) {
+  if (currentUser.changedPasswordAfter(decoded.iat)) {
     return next(
       new AppError(
         'User recently changed password password. Please login again',
@@ -93,6 +93,19 @@ exports.protect = catchAsync(async (req, res, next) => {
     );
   }
   // Grant access to protected route
-  req.user = freshUser;
+  req.user = currentUser;
   next();
 });
+
+// Restrict access only to admin and lead-guide
+exports.restrictTo = (...roles) => {
+  return (req, res, next) => {
+    //role ['admin', 'lead-guide]. role="user"
+    if (!roles.includes(req.user.role)) {
+      return next(
+        new AppError('You do not have permission to perform this action', 403)
+      );
+    }
+    next();
+  };
+};
