@@ -93,7 +93,7 @@ const tourSchema = new mongoose.Schema(
       address: String,
       description: String
     },
-    // By using array, we specify the location is embedded
+    // Embedded - By using array, we specify the location is embedded
     locations: [
       {
         type: {
