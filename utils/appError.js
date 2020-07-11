@@ -1,7 +1,7 @@
 class AppError extends Error {
   constructor(message, statusCode) {
     super(message); // extends from parents class
-    console.log('here in error');
+    console.log('here in Apperror');
     this.statusCode = statusCode;
     // startsWith in js takes string. We change statusCode to string and if it includes '4', returns fail. Or error.
     this.status = `${statusCode}`.startsWith('4') ? 'fail' : 'error';
