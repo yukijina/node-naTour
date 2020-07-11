@@ -40,7 +40,13 @@ const userSchema = new mongoose.Schema({
   },
   passwordChangedAt: Date,
   passwordResetToken: String,
-  passwordResetExpires: Date
+  passwordResetExpires: Date,
+  // When user delete their account, we set active to false, rather than deleting entire account from db
+  active: {
+    type: Boolean,
+    default: true,
+    select: false
+  }
 });
 
 // Reset password ChangedAt
@@ -64,6 +70,13 @@ userSchema.pre('save', async function(next) {
   next();
 });
 
+// Render only active status is true (active:false meands user deleted account)
+// regex - All find methods start with "find" (findOne etc)
+userSchema.pre(/^find/, function(next) {
+  // This points to the current qury
+  this.find({ active: { $ne: false } });
+  next();
+});
 // Login -check if user's input password is correct
 userSchema.methods.correctPassword = async function(
   candidatePassword,
