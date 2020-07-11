@@ -12,6 +12,18 @@ const signToken = id => {
   });
 };
 
+const createSendToken = (user, statusCode, res) => {
+  const token = signToken(user._id);
+
+  res.status(statusCode).json({
+    status: 'success',
+    token,
+    data: {
+      user
+    }
+  });
+};
+
 exports.signup = catchAsync(async (req, res, next) => {
   // We could assign req.body to new User but this way is more secure. If somebody manually input ex. role 'admin' that is saved in the db. To prevent that, we only store the specific field to the db.
   const newUser = await User.create({
@@ -21,15 +33,7 @@ exports.signup = catchAsync(async (req, res, next) => {
     passwordConfirm: req.body.passwordConfirm
   });
 
-  const token = signToken(newUser._id);
-
-  res.status(201).json({
-    status: 'success',
-    token,
-    data: {
-      user: newUser
-    }
-  });
+  createSendToken(newUser, 201, res);
 });
 
 exports.login = catchAsync(async (req, res, next) => {
@@ -48,12 +52,7 @@ exports.login = catchAsync(async (req, res, next) => {
   }
 
   // If there is no error above, token is sent to the user
-  const token = signToken(user._id);
-
-  res.status(200).json({
-    status: 'succcess',
-    token
-  });
+  createSendToken(user, 200, res);
 });
 
 // Protecte route middleware runction
@@ -179,10 +178,23 @@ exports.resetPassword = catchAsync(async (req, res, next) => {
   await user.save();
   // 3) Update changePasswordAt property for the user
   // 4) Log the user in
-  const token = signToken(user._id);
+  createSendToken(user, 200, res);
+});
 
-  res.status(201).json({
-    status: 'success',
-    token
-  });
+// Logged in user changes the passwords
+exports.updatePassword = catchAsync(async (req, res, next) => {
+  // 1) Get user from collection
+  const user = await User.findById(req.user.id).select('+password');
+  // 2) Check if POSTed current password is correct
+  if (!(await user.correctPassword(req.body.passwordCurrent, user.password))) {
+    return next(new AppError('Your current password is wrong', 401));
+  }
+  // 3) If so, update password
+  user.password = req.body.password;
+  user.passwordConfirm = req.body.passwordConfirm;
+  await user.save();
+  // User.findByIdandUpdate will NOT work as intended! (Password confirm validation and .pre)
+
+  // 4) Log user in and send JWT
+  createSendToken(user, 200, res);
 });
