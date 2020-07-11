@@ -80,7 +80,33 @@ const tourSchema = new mongoose.Schema(
     secretTour: {
       type: Boolean,
       default: false //defaul secret tours are not secret
-    }
+    },
+    // Embedded Object
+    startLocation: {
+      //Geo Json - Object should includes at lelast type and coordinates
+      type: {
+        type: String,
+        default: 'Point',
+        enum: ['Point']
+      },
+      coordinates: [Number],
+      address: String,
+      description: String
+    },
+    // By using array, we specify the location is embedded
+    locations: [
+      {
+        type: {
+          type: String,
+          default: 'Point',
+          enum: ['Point']
+        },
+        coordinates: [Number],
+        address: String,
+        description: String,
+        day: Number
+      }
+    ]
   },
   {
     // virtuals true => it displays virtual schema
