@@ -174,7 +174,7 @@ tourSchema.pre(/^find/, function(next) {
   // this points to current query
   this.populate({
     path: 'guides',
-    select: '-__v -passwprdChangedAt' // Do not display these filed when populated
+    select: '-__v -passwprdChangedAt' // Use minus in font of __v and passwrd.. - Do not display these filed when populated
   });
   next();
 });
