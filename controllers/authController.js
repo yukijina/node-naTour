@@ -43,6 +43,7 @@ exports.signup = catchAsync(async (req, res, next) => {
   const newUser = await User.create({
     name: req.body.name,
     email: req.body.email,
+    role: req.body.role,
     password: req.body.password,
     passwordConfirm: req.body.passwordConfirm
   });
@@ -115,7 +116,10 @@ exports.protect = catchAsync(async (req, res, next) => {
 // Restrict access only to admin and lead-guide
 exports.restrictTo = (...roles) => {
   return (req, res, next) => {
-    //role ['admin', 'lead-guide]. role="user"
+    //roles/multi args in array => ['admin', 'lead-guide]. role="user"
+    console.log('role:', roles, 'current user: ', req.user);
+    // in the protect route, current user was saved to req.user
+    // if matches, the role person can perform
     if (!roles.includes(req.user.role)) {
       return next(
         new AppError('You do not have permission to perform this action', 403)

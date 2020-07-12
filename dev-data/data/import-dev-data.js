@@ -48,6 +48,7 @@ if (process.argv[2] === '--import') {
   importData();
 } else if (process.argv[2] === '--delete') {
   deleteData();
+  // command line  node ./dev-data/data/import-dev-data.js --delete
 }
 console.log(process.argv);
 // returns like >= GET /api/v1/tours 200 173.886 ms - 9428
