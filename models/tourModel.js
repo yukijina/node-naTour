@@ -170,6 +170,15 @@ tourSchema.pre(/^find/, function(next) {
   next();
 });
 
+tourSchema.pre(/^find/, function(next) {
+  // this points to current query
+  this.populate({
+    path: 'guides',
+    select: '-__v -passwprdChangedAt' // Do not display these filed when populated
+  });
+  next();
+});
+
 //just to show how post works
 tourSchema.post(/^find/, function(docs, next) {
   console.log(`Query took ${Date.now() - this.start} milliseconds!`);

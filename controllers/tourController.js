@@ -34,7 +34,7 @@ exports.getAllTours = catchAsync(async (req, res, next) => {
 });
 
 exports.getTour = catchAsync(async (req, res, next) => {
-  //console.log(req.query);
+  //console.log(req.query); - populate is for referencing
   const tour = await Tour.findById(req.params.id);
 
   // When there is no matched route(tour - same id digits but wrong id number)
