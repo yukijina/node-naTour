@@ -131,6 +131,13 @@ tourSchema.virtual('durationWeeks').get(function() {
   return this.duration / 7;
 });
 
+// Connetct two models - populate review (review has tour ID in its schema)
+tourSchema.virtual('reviews', {
+  ref: 'Review',
+  foreignField: 'tour', // in Review Schema/Field, tour is stored 'tour'
+  localField: '_id'
+});
+
 //Doument middleware(pre middleware): run before .save() and create(), but not insertMany(), update etc
 // this - currently processed document ex.if you post a new data, that whole data is "this"
 // we can use this middleware for before saving the document(data)

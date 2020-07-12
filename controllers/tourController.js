@@ -35,8 +35,8 @@ exports.getAllTours = catchAsync(async (req, res, next) => {
 
 exports.getTour = catchAsync(async (req, res, next) => {
   //console.log(req.query); - populate is for referencing
-  const tour = await Tour.findById(req.params.id);
-
+  console.log('id:', req.params.id);
+  const tour = await Tour.findById(req.params.id).populate('reviews'); // virtual check tourModel
   // When there is no matched route(tour - same id digits but wrong id number)
   // we should add this error for the route that includes id
   if (!tour) {
