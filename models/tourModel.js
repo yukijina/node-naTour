@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
 const slugify = require('slugify');
 const validator = require('validator');
-const User = require('./userModel');
+//const User = require('./userModel');
 
 const tourSchema = new mongoose.Schema(
   {
@@ -108,8 +108,14 @@ const tourSchema = new mongoose.Schema(
         day: Number
       }
     ],
-    // Embedded documents (use middleware funciton .pre below)
-    guides: Array
+    // Embedded documents example (use middleware funciton .pre below) - also need to import User
+    //guides: Array
+    guides: [
+      {
+        type: mongoose.Schema.ObjectId,
+        ref: 'User'
+      }
+    ]
   },
   {
     // virtuals true => it displays virtual schema
@@ -130,16 +136,16 @@ tourSchema.virtual('durationWeeks').get(function() {
 // we can use this middleware for before saving the document(data)
 // so called Pre save Hooks
 tourSchema.pre('save', function(next) {
-  console.log(this);
   this.slug = slugify(this.name, { lower: true });
   next();
 });
 
-tourSchema.pre('save', async function(next) {
-  const guidesPromise = this.guides.map(async id => await User.findById(id));
-  this.guides = await Promise.all(guidesPromise);
-  next();
-});
+// If you wan to embedded the guides
+// tourSchema.pre('save', async function(next) {
+//   const guidesPromise = this.guides.map(async id => await User.findById(id));
+//   this.guides = await Promise.all(guidesPromise);
+//   next();
+// });
 
 ///// Just for text - middleware runs next()
 // another pre save hook middleware
