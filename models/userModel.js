@@ -77,6 +77,7 @@ userSchema.pre(/^find/, function(next) {
   this.find({ active: { $ne: false } });
   next();
 });
+
 // Login -check if user's input password is correct
 userSchema.methods.correctPassword = async function(
   candidatePassword,
