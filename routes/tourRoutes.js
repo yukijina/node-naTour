@@ -3,6 +3,7 @@ const tourController = require('./../controllers/tourController');
 // or const { getAllTours, createTour, getTour, updateTour, deleteTour }= require('./../controllers/tourController');
 const router = express.Router();
 const authController = require('../controllers/authController');
+const reviewController = require('./../controllers/reviewController');
 
 // check if params has appropriate Id
 // val stands for value - it holds the parameter
@@ -36,6 +37,15 @@ router
     authController.protect,
     authController.restrictTo('admin', 'lead-guide'),
     tourController.deleteTour
+  );
+
+//Nested routes
+router
+  .route('/:tourId/reviews')
+  .post(
+    authController.protect,
+    authController.restrictTo('user'),
+    reviewController.createReview
   );
 
 module.exports = router;

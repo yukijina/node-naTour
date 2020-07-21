@@ -87,6 +87,8 @@ exports.protect = catchAsync(async (req, res, next) => {
     );
   }
   // 2) Verification token - .verify returns promise
+  // jwt.verify is asyn.  promisify converts callback fn to promise-based
+  //By adding primisify promisify(jwt.verify) is function returns promiss and (token, process.env.JWT_SECRET) is callback function
   const decoded = await promisify(jwt.verify)(token, process.env.JWT_SECRET);
   // decoded returns like this:
   // Promise {{ id: '5f07de0f2708af6151e33d62', iat: 1594400952, exp: 1602176952 }}
