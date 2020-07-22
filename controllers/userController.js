@@ -25,17 +25,17 @@ exports.getAllUsers = catchAsync(async (req, res, next) => {
   });
 });
 
-// change name and password
+// change name and email (password is updated in auth)
 exports.updateMe = catchAsync(async (req, res, next) => {
   // 1) Create error if user POSTs password data
   if (req.body.password || req.body.passwordConfirm) {
     return next(
       new AppError(
-        'This route is not for password update. {;ease use /updateMyPassword.'
+        'This route is not for password update. Please use /updateMyPassword.'
       )
     );
   }
-  // 2) Filtered outt unwanted fields names that are not allowed to be updated
+  // 2) Filtered out unwanted fields names that are not allowed to be updated
   const filteredBody = filterObj(req.body, 'name', 'email');
 
   // 3) Update user document

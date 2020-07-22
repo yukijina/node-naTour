@@ -101,7 +101,7 @@ userSchema.methods.changedPasswordAfter = function(JWTTimestamp) {
 //bcrypt could be string but this ctypto is temporaly, just token - we do not store in db
 userSchema.methods.createPasswordResetToken = function() {
   const resetToken = crypto.randomBytes(32).toString('hex');
-
+  // Do not store plain resetToken to db. We encrypte it like password
   this.passwordResetToken = crypto
     .createHash('sha256')
     .update(resetToken)
