@@ -1,21 +1,32 @@
 const express = require('express');
 const tourController = require('./../controllers/tourController');
 // or const { getAllTours, createTour, getTour, updateTour, deleteTour }= require('./../controllers/tourController');
-const router = express.Router();
 const authController = require('../controllers/authController');
-const reviewController = require('./../controllers/reviewController');
+//const reviewController = require('./../controllers/reviewController');
+const reviewRouter = require('./reviewRoutes');
+
+const router = express.Router();
 
 // check if params has appropriate Id
 // val stands for value - it holds the parameter
 //router.param('id', tourController.checkID);
 
 // Create a checkBody Parameter
-
 // Check if body contains the name and price property
-
 // If not send back 400 (bad request)
-
 // Add it to the post handler stack
+
+//Nested routes
+// router
+//   .route('/:tourId/reviews')
+//   .post(
+//     authController.protect,
+//     authController.restrictTo('user'),
+//     reviewController.createReview
+//   );
+
+// Nested route (refactor) - Check reveiwRouter(not controller) => reviewRouter needs to access tourId (use 'mergeParams: true)
+router.use('/:tourId/reviews', reviewRouter);
 
 router
   .route('/top-5-cheap')
@@ -37,15 +48,6 @@ router
     authController.protect,
     authController.restrictTo('admin', 'lead-guide'),
     tourController.deleteTour
-  );
-
-//Nested routes
-router
-  .route('/:tourId/reviews')
-  .post(
-    authController.protect,
-    authController.restrictTo('user'),
-    reviewController.createReview
   );
 
 module.exports = router;

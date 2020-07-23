@@ -1,17 +1,16 @@
 const Review = require('../models/reviewModel');
-const APIFeatures = require('./../utils/apiFeatures');
 const catchAsync = require('./../utils/catchAsync');
 const AppError = require('./../utils/appError');
+const factory = require('./handlerFactory');
 
 exports.getAllReviews = catchAsync(async (req, res, next) => {
-  // const features = new APIFeatures(Review.find(), req.query)
-  //   .filter()
-  //   .sort()
-  //   .limitFields()
-  //   .paginate();
+  // If there is tourId in params, it returns reviews in that tourId. If tourId is not (api/v1/reviews), it returns all the reveiews
+  // api/vi/tours/:toudId/reviews
+  let filter = {};
+  if (req.params.tourId) filter = { tour: req.params.tourId };
 
   // const reviews = features.query;
-  const reviews = await Review.find();
+  const reviews = await Review.find(filter);
 
   res.status(200).json({
     status: 'success',
@@ -34,6 +33,8 @@ exports.createReview = catchAsync(async (req, res, next) => {
     data: newReview
   });
 });
+
+exports.deleteReview = factory.deleteOne(Review);
 
 // exports.getReview = catchAsync(async (req, res, next) => {
 //   const review = await Review.findById(req.params.id);
