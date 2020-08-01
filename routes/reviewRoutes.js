@@ -12,6 +12,7 @@ router
   .post(
     authController.protect,
     authController.restrictTo('user'), // only role:user can write a review
+    reviewController.setTourUserId,
     reviewController.createReview
   );
 
