@@ -1,25 +1,5 @@
 const Review = require('../models/reviewModel');
-const catchAsync = require('./../utils/catchAsync');
-const AppError = require('./../utils/appError');
 const factory = require('./handlerFactory');
-
-exports.getAllReviews = catchAsync(async (req, res, next) => {
-  // If there is tourId in params, it returns reviews in that tourId. If tourId is not (api/v1/reviews), it returns all the reveiews
-  // api/vi/tours/:toudId/reviews
-  let filter = {};
-  if (req.params.tourId) filter = { tour: req.params.tourId };
-
-  // const reviews = features.query;
-  const reviews = await Review.find(filter);
-
-  res.status(200).json({
-    status: 'success',
-    results: reviews.length,
-    data: {
-      reviews
-    }
-  });
-});
 
 // Middleware called before create (need to add this function to the route)
 exports.setTourUserId = (req, res, next) => {
@@ -30,10 +10,13 @@ exports.setTourUserId = (req, res, next) => {
 };
 
 // Refactor
+exports.getAllReviews = factory.getAll(Review);
+exports.getReview = factory.getOne(Review);
 exports.createReview = factory.createOne(Review);
 exports.updateReview = factory.updateOne(Review);
 exports.deleteReview = factory.deleteOne(Review);
 
+/////************* */ Before using factory
 // exports.createReview = catchAsync(async (req, res, next) => {
 //   // Allow nested routes
 //   if (!req.body.tour) req.body.tour = req.params.tourId;
@@ -90,5 +73,23 @@ exports.deleteReview = factory.deleteOne(Review);
 //   res.status(204).json({
 //     status: 'success',
 //     data: null
+//   });
+// });
+
+//exports.getAllReviews = catchAsync(async (req, res, next) => {
+//   // If there is tourId in params, it returns reviews in that tourId. If tourId is not (api/v1/reviews), it returns all the reveiews
+//   // api/vi/tours/:toudId/reviews
+//   let filter = {};
+//   if (req.params.tourId) filter = { tour: req.params.tourId };
+
+//   // const reviews = features.query;
+//   const reviews = await Review.find(filter);
+
+//   res.status(200).json({
+//     status: 'success',
+//     results: reviews.length,
+//     data: {
+//       reviews
+//     }
 //   });
 // });

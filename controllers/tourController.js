@@ -1,8 +1,13 @@
 const Tour = require('./../models/tourModel');
-const APIFeatures = require('./../utils/apiFeatures');
 const catchAsync = require('./../utils/catchAsync');
-const AppError = require('./../utils/appError');
 const factory = require('./handlerFactory');
+
+// Refactor using handleFactory
+exports.getAllTours = factory.getAll(Tour);
+exports.getTour = factory.getOne(Tour, { path: 'reviews' });
+exports.createTour = factory.createOne(Tour);
+exports.updateTour = factory.updateOne(Tour);
+exports.deleteTour = factory.deleteOne(Tour);
 
 exports.aliasTopTours = (req, res, next) => {
   req.query.limit = '5';
@@ -10,97 +15,6 @@ exports.aliasTopTours = (req, res, next) => {
   req.query.fields = 'name, price, ratingsAverage, summary, difficulty';
   next();
 };
-
-exports.getAllTours = catchAsync(async (req, res, next) => {
-  ///// EXECUTE QUERY
-  //Chaining the function in the class - create instance - filter - sort
-  const features = new APIFeatures(Tour.find(), req.query)
-    .filter()
-    .sort()
-    .limitFields()
-    .paginate();
-  const tours = await features.query;
-  //const tours = await query;
-  //query.sort().select().skip().limit() - it returns each method and chain to next.
-
-  //// SEND RESPONSE
-  res.status(200).json({
-    status: 'success',
-    requestedAt: req.requestTime,
-    results: tours.length,
-    data: {
-      tours
-    }
-  });
-});
-
-exports.getTour = catchAsync(async (req, res, next) => {
-  //console.log(req.query); - populate is for referencing
-  console.log('id:', req.params.id);
-  const tour = await Tour.findById(req.params.id).populate('reviews'); // virtual check tourModel
-  // When there is no matched route(tour - same id digits but wrong id number)
-  // we should add this error for the route that includes id
-  if (!tour) {
-    return next(new AppError('No tour found with that ID', 404));
-  }
-
-  res.status(200).json({
-    status: 'success',
-    data: {
-      tour
-    }
-  });
-});
-
-// Refactor using handleFactory
-exports.createTour = factory.createOne(Tour);
-exports.updateTour = factory.updateOne(Tour);
-exports.deleteTour = factory.deleteOne(Tour);
-
-//exports.createTour = catchAsync(async (req, res, next) => {
-// const newTour = new Tour({})
-// newTour.save()
-/// we can call create method and it returns promise
-//   const newTour = await Tour.create(req.body);
-
-//   res.status(201).json({
-//     status: 'success',
-//     data: {
-//       tour: newTour
-//     }
-//   });
-// });
-
-// exports.updateTour = catchAsync(async (req, res, next) => {
-//   const tour = await Tour.findByIdAndUpdate(req.params.id, req.body, {
-//     new: true, //after update, it returns the documents
-//     runValidators: true // if you make it false, validation does not work
-//   });
-
-//   if (!tour) {
-//     return next(new AppError('No tour found with that ID', 404));
-//   }
-
-//   res.status(200).json({
-//     status: 'success',
-//     data: {
-//       tour
-//     }
-//   });
-// });
-
-// exports.deleteTour = catchAsync(async (req, res, next) => {
-//   const tour = await Tour.findByIdAndDelete(req.params.id);
-//   //const tour = await Tour.findById(req.params.id);
-//   if (!tour) {
-//     return next(new AppError('No tour found with that ID', 404));
-//   }
-
-//   res.status(204).json({
-//     status: 'success',
-//     data: null
-//   });
-// });
 
 //// Aggragation pipeline (Mongoose)
 exports.getTourStats = catchAsync(async (req, res, next) => {
@@ -187,6 +101,93 @@ exports.getMonthlyPlan = catchAsync(async (req, res, next) => {
     }
   });
 });
+
+/////************* */ Before using factory
+//exports.getTour = catchAsync(async (req, res, next) => {
+//   //console.log(req.query); - populate is for referencing
+//   console.log('id:', req.params.id);
+//   const tour = await Tour.findById(req.params.id).populate('reviews'); // virtual check tourModel
+//   // When there is no matched route(tour - same id digits but wrong id number)
+//   // we should add this error for the route that includes id
+//   if (!tour) {
+//     return next(new AppError('No tour found with that ID', 404));
+//   }
+
+//   res.status(200).json({
+//     status: 'success',
+//     data: {
+//       tour
+//     }
+//   });
+// });
+
+//exports.createTour = catchAsync(async (req, res, next) => {
+// const newTour = new Tour({})
+// newTour.save()
+/// we can call create method and it returns promise
+//   const newTour = await Tour.create(req.body);
+
+//   res.status(201).json({
+//     status: 'success',
+//     data: {
+//       tour: newTour
+//     }
+//   });
+// });
+
+// exports.updateTour = catchAsync(async (req, res, next) => {
+//   const tour = await Tour.findByIdAndUpdate(req.params.id, req.body, {
+//     new: true, //after update, it returns the documents
+//     runValidators: true // if you make it false, validation does not work
+//   });
+
+//   if (!tour) {
+//     return next(new AppError('No tour found with that ID', 404));
+//   }
+
+//   res.status(200).json({
+//     status: 'success',
+//     data: {
+//       tour
+//     }
+//   });
+// });
+
+// exports.deleteTour = catchAsync(async (req, res, next) => {
+//   const tour = await Tour.findByIdAndDelete(req.params.id);
+//   //const tour = await Tour.findById(req.params.id);
+//   if (!tour) {
+//     return next(new AppError('No tour found with that ID', 404));
+//   }
+
+//   res.status(204).json({
+//     status: 'success',
+//     data: null
+//   });
+// });
+
+// exports.getAllTours = catchAsync(async (req, res, next) => {
+//   ///// EXECUTE QUERY
+//   //Chaining the function in the class - create instance - filter - sort
+//   const features = new APIFeatures(Tour.find(), req.query)
+//     .filter()
+//     .sort()
+//     .limitFields()
+//     .paginate();
+//   const tours = await features.query;
+//   //const tours = await query;
+//   //query.sort().select().skip().limit() - it returns each method and chain to next.
+
+//   //// SEND RESPONSE
+//   res.status(200).json({
+//     status: 'success',
+//     requestedAt: req.requestTime,
+//     results: tours.length,
+//     data: {
+//       tours
+//     }
+//   });
+// });
 
 /////************* */ Before connecting with database
 /// Top Level code - execute only once - Synchronous - this is for testing purpose..

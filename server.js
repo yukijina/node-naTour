@@ -14,10 +14,14 @@ dotenv.config({ path: './config.env' });
 // dotenv should be above app, so that app can read environment variable
 const app = require('./app');
 
-const DB = process.env.DATABASE.replace(
-  '<PASSWORD>',
-  process.env.DATABASE_PASSWORD
-);
+//** connect with MongoDB Cloud */
+// const DB = process.env.DATABASE.replace(
+//   '<PASSWORD>',
+//   process.env.DATABASE_PASSWORD
+// );
+
+//** */ connect with local mongoDB
+const DB = process.env.DATABASE_LOCAL;
 
 // connect returns promise
 mongoose

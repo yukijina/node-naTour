@@ -34,7 +34,7 @@ const limiter = ratelimit({
 app.use('/api', limiter);
 
 //// BODY PARSER, reading data from req.body - modify the incoming data - app uses that middleware
-app.use(express.json({ limit: '10kb' })); //jsondata accept upto 10kg
+app.use(express.json({ limit: '10kb' })); //jsondata accept upto 10kb
 
 // Data sanitation against NoSQL Query injection
 app.use(mongoSanitize());

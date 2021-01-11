@@ -3,6 +3,12 @@ const catchAsync = require('./../utils/catchAsync');
 const AppError = require('./../utils/appError');
 const factory = require('./handlerFactory');
 
+exports.getAllUsers = factory.getAll(User);
+exports.getUser = factory.getOne(User);
+// Do not update password only for admin
+exports.updateUser = factory.updateOne(User);
+exports.deleteUser = factory.deleteOne(User);
+
 const filterObj = (obj, ...allowedFields) => {
   // Object.keys returns array contains keys
   const newObj = {};
@@ -12,18 +18,6 @@ const filterObj = (obj, ...allowedFields) => {
   console.log(newObj);
   return newObj;
 };
-
-exports.getAllUsers = catchAsync(async (req, res, next) => {
-  const users = await User.find();
-
-  res.status(200).json({
-    status: 'success',
-    count: users.length,
-    data: {
-      users
-    }
-  });
-});
 
 // change name and email (password is updated in auth)
 exports.updateMe = catchAsync(async (req, res, next) => {
@@ -62,21 +56,29 @@ exports.deleteMe = catchAsync(async (req, res, next) => {
   });
 });
 
-exports.getUser = (req, res) => {
-  res.status(500).json({
-    status: 'error',
-    message: 'This route is not yet defined/'
-  });
-};
-
 exports.createUser = (req, res) => {
   res.status(500).json({
     status: 'error',
-    message: 'This route is not yet defined/'
+    message: 'This route is not yet defined!. Please use /signup instead'
   });
 };
 
-// Do not update password only for admin
-exports.updateUser = factory.updateOne(User);
+/////************* */ Before using factory
+// exports.getUser = (req, res) => {
+//   res.status(500).json({
+//     status: 'error',
+//     message: 'This route is not yet defined/'
+//   });
+// };
 
-exports.deleteUser = factory.deleteOne(User);
+// exports.getAllUsers = catchAsync(async (req, res, next) => {
+//   const users = await User.find();
+
+//   res.status(200).json({
+//     status: 'success',
+//     count: users.length,
+//     data: {
+//       users
+//     }
+//   });
+// });
