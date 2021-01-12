@@ -19,6 +19,11 @@ const filterObj = (obj, ...allowedFields) => {
   return newObj;
 };
 
+// assign req.user.id when user loggs in - by assign to req.params, we can use handleFactory
+exports.getMe = (req, res, next) => {
+  res.params.id = req.user.id;
+  next();
+};
 // change name and email (password is updated in auth)
 exports.updateMe = catchAsync(async (req, res, next) => {
   // 1) Create error if user POSTs password data
