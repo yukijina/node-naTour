@@ -79,7 +79,9 @@ exports.getAll = Model =>
       .sort()
       .limitFields()
       .paginate();
-    const docs = await features.query;
+    //const docs = await features.query;
+    //** */ dev- explain to see the executionStats
+    const docs = await features.query.explain();
     //const tours = await query;
     //query.sort().select().skip().limit() - it returns each method and chain to next.
 
