@@ -40,7 +40,8 @@ const tourSchema = new mongoose.Schema(
     },
     ratingsQuantity: {
       type: Number,
-      default: 0
+      default: 0,
+      set: val => Math.round((val * 10) / 10) // 4.6666, 46.666, 47, 4.7 - need one digit . so multiple -> round -> devide
     },
     price: {
       type: Number,
