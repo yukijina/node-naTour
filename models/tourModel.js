@@ -128,6 +128,7 @@ const tourSchema = new mongoose.Schema(
 // create index
 tourSchema.index({ price: 1, rateingAverage: -1 });
 tourSchema.index({ slug: 1 });
+tourSchema.index({ startLocation: '2dsphere' }); // geo graphical index is different (not 1, -1)
 
 // Virtual properties - not stored database. it is great such as conversion from miles to km.
 // get is getter here
