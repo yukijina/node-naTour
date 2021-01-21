@@ -198,14 +198,14 @@ tourSchema.post(/^find/, function(docs, next) {
   next();
 });
 
-//// AGGREGATION MIDDLEWARE
+//// AGGREGATION MIDDLEWARE - comment out because we do not want to apply to all the functions
 /// this is poiting current aggregation
-tourSchema.pre('aggregate', function(next) {
-  // Here, we are trying not to display secretTour when aggragation (like route: /tour-starts) is requested.
-  this.pipeline().unshift({ $match: { secretTour: { $ne: true } } });
-  console.log(('aggregate: ', this));
-  next();
-});
+// tourSchema.pre('aggregate', function(next) {
+//   // Here, we are trying not to display secretTour when aggragation (like route: /tour-starts) is requested.
+//   this.pipeline().unshift({ $match: { secretTour: { $ne: true } } });
+//   console.log(('aggregate: ', this));
+//   next();
+// });
 
 // Model uses uppercase - convention
 const Tour = mongoose.model('Tour', tourSchema);
