@@ -1,3 +1,4 @@
+const path = require('path');
 const express = require('express');
 const morgan = require('morgan');
 const ratelimit = require('express-rate-limit');
@@ -12,6 +13,9 @@ const userRouter = require('./routes/userRoutes');
 const reviewRouter = require('./routes/reviewRoutes');
 
 const app = express();
+
+app.set('view engine', 'pug');
+app.set('views', path.join(__dirname, 'views'));
 
 //// GLOBAL MIDDLEWARE
 // SET SECURITY HEADERS - extra hedder keys are added for security
@@ -58,7 +62,8 @@ app.use(
 );
 
 //// Serving static files
-app.use(express.static(`${__dirname}/public`));
+//app.use(express.static(`${__dirname}/public`));
+app.use(express.static(path.join(__dirname, 'public')));
 
 //// Test middleware
 app.use((req, res, next) => {
@@ -67,6 +72,11 @@ app.use((req, res, next) => {
 });
 
 //Mounting router
+app.get('/', (req, res) => {
+  // pug - template name to render
+  res.status(200).render('base');
+});
+
 app.use('/api/v1/tours', tourRouter);
 app.use('/api/v1/users', userRouter);
 app.use('/api/v1/reviews', reviewRouter);
