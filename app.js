@@ -74,7 +74,10 @@ app.use((req, res, next) => {
 //Mounting router
 app.get('/', (req, res) => {
   // pug - template name to render
-  res.status(200).render('base');
+  res.status(200).render('base', {
+    tour: 'The Forest Hiker',
+    user: 'Jonas'
+  });
 });
 
 app.use('/api/v1/tours', tourRouter);
