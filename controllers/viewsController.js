@@ -24,7 +24,7 @@ exports.getTour = catchAsync(async (req, res) => {
 
   // 3) Render template using pug
   res.status(200).render('tour', {
-    title: tour.name,
+    title: `${tour.name} Tour`,
     tour
   });
 });
