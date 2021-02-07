@@ -6,6 +6,7 @@ const helmet = require('helmet');
 const mongoSanitize = require('express-mongo-sanitize');
 const xss = require('xss-clean');
 const hpp = require('hpp');
+const cookieParser = require('cookie-parser');
 const AppError = require('./utils/appError');
 const globalErrorHandler = require('./controllers/errorController');
 const tourRouter = require('./routes/tourRoutes');
@@ -40,6 +41,7 @@ app.use('/api', limiter);
 
 //// BODY PARSER, reading data from req.body - modify the incoming data - app uses that middleware
 app.use(express.json({ limit: '10kb' })); //jsondata accept upto 10kb
+app.use(cookieParser());
 
 // Data sanitation against NoSQL Query injection
 app.use(mongoSanitize());
@@ -69,6 +71,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 //// Test middleware
 app.use((req, res, next) => {
   req.requestTime = new Date().toISOString();
+  console.log(req.cookies);
   next();
 });
 
