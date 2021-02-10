@@ -70,6 +70,15 @@ exports.login = catchAsync(async (req, res, next) => {
   createSendToken(user, 200, res);
 });
 
+// we can't manipulate cookie in browser. To log out, we send new cookie without token so that a user can safely log out.
+exports.logout = (req, res) => {
+  res.cookie('jwt', 'loggedout', {
+    expires: new Date(Date.now() + 10 * 1000),
+    httpOnly: true
+  });
+  res.status(200).json({ status: 'success' });
+};
+
 // Protecte route middleware runction
 exports.protect = catchAsync(async (req, res, next) => {
   // 1) Getting token and check of it's there
@@ -118,27 +127,32 @@ exports.protect = catchAsync(async (req, res, next) => {
 });
 
 // Ony for rendered pages, no error
-exports.isLoggedIn = catchAsync(async (req, res, next) => {
+exports.isLoggedIn = async (req, res, next) => {
   if (req.cookies.jwt) {
-    const decoded = await promisify(jwt.verify)(
-      req.cookies.jwt,
-      process.env.JWT_SECRET
-    );
+    try {
+      const decoded = await promisify(jwt.verify)(
+        req.cookies.jwt,
+        process.env.JWT_SECRET
+      );
 
-    const currentUser = await User.findById(decoded.id);
-    if (!currentUser) {
+      const currentUser = await User.findById(decoded.id);
+      if (!currentUser) {
+        return next();
+      }
+      // 4) Check if user chnaged password after the token was issued
+      if (currentUser.changedPasswordAfter(decoded.iat)) {
+        return next();
+      }
+      // There is a logged in user (template/pug can access to user)
+      res.locals.user = currentUser;
+      return next();
+    } catch (error) {
+      // it won't block with error. Even there is an error, it moves to next function
       return next();
     }
-    // 4) Check if user chnaged password after the token was issued
-    if (currentUser.changedPasswordAfter(decoded.iat)) {
-      return next();
-    }
-    // There is a logged in user (template/pug can access to user)
-    res.locals.user = currentUser;
-    return next();
   }
   next();
-});
+};
 
 // Restrict access only to admin and lead-guide
 exports.restrictTo = (...roles) => {
