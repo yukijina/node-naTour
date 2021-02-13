@@ -41,6 +41,7 @@ app.use('/api', limiter);
 
 //// BODY PARSER, reading data from req.body - modify the incoming data - app uses that middleware
 app.use(express.json({ limit: '10kb' })); //jsondata accept upto 10kb
+app.use(express.urlencoded({ extended: true, limit: '10kb' })); //get login input form data
 app.use(cookieParser());
 
 // Data sanitation against NoSQL Query injection
