@@ -17,7 +17,7 @@ exports.deleteUser = factory.deleteOne(User);
 //     cb(null, 'publc/img/users');
 //   },
 //   filename: (req, file, cb) => {
-//     // user-xxxx-getaughu.jpeg
+//     // user-xxxx-xxxxxxx.jpeg
 //     const ext = file.mimetype.split('/')[1];
 //     cb(null, `user-${req.user.id}-${Date.now()}.${ext}`)
 //  }});
