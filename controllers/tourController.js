@@ -29,10 +29,40 @@ exports.uploadTourImages = upload.fields([
 // upload.single('image') - single
 // upload.fields([{},{}]) - multiple
 
-exports.resizeTourImages = (req, res, next) => {
+exports.resizeTourImages = catchAsync(async (req, res, next) => {
   console.log(req.files);
+
+  if (!req.imageCover || !req.files.images) return next();
+
+  // 1) Cover Image - assing to the body so that factory update works fine (that takes req.body)
+  req.body.imageCover = `tour-${req.params.id}-${Date.now()}-cover.jpeg`;
+  await sharp(req.file.imageCover[0].buffer)
+    .resize(2000, 1333)
+    .toFormat('jpeg')
+    .jpeg({ quality: 90 })
+    .toFile(`public/img/users/${req.body.imageCover}`);
+
+  // 2) Images
+  req.body.images = [];
+
+  // we want to wait until async inside ends then move to next
+  await Promise.all(
+    // map can store new array as a result of async/await
+    req.files.images.map(async (file, i) => {
+      const filename = `tour-${req.params.id}-${Date.now()}-${i + 1}.jpeg`;
+
+      await sharp(req.file.buffer)
+        .resize(2000, 1333)
+        .toFormat('jpeg')
+        .jpeg({ quality: 90 })
+        .toFile(`public/img/users/${req.body.imageCover}`);
+
+      req.body.images.push(filename);
+    })
+  );
+
   next();
-};
+});
 
 // Refactor using handleFactory
 exports.getAllTours = factory.getAll(Tour);
