@@ -32,15 +32,15 @@ exports.uploadTourImages = upload.fields([
 exports.resizeTourImages = catchAsync(async (req, res, next) => {
   console.log(req.files);
 
-  if (!req.imageCover || !req.files.images) return next();
+  if (!req.files.imageCover || !req.files.images) return next();
 
   // 1) Cover Image - assing to the body so that factory update works fine (that takes req.body)
   req.body.imageCover = `tour-${req.params.id}-${Date.now()}-cover.jpeg`;
-  await sharp(req.file.imageCover[0].buffer)
+  await sharp(req.files.imageCover[0].buffer)
     .resize(2000, 1333)
     .toFormat('jpeg')
     .jpeg({ quality: 90 })
-    .toFile(`public/img/users/${req.body.imageCover}`);
+    .toFile(`public/img/tours/${req.body.imageCover}`);
 
   // 2) Images
   req.body.images = [];
@@ -51,11 +51,11 @@ exports.resizeTourImages = catchAsync(async (req, res, next) => {
     req.files.images.map(async (file, i) => {
       const filename = `tour-${req.params.id}-${Date.now()}-${i + 1}.jpeg`;
 
-      await sharp(req.file.buffer)
+      await sharp(file.buffer)
         .resize(2000, 1333)
         .toFormat('jpeg')
         .jpeg({ quality: 90 })
-        .toFile(`public/img/users/${req.body.imageCover}`);
+        .toFile(`public/img/tours/${filename}`);
 
       req.body.images.push(filename);
     })
