@@ -48,3 +48,9 @@ exports.createBookingCheckout = catchAsync(async (req, res, next) => {
   // this hit '/' route
   res.redirect(req.originalUrl.sprit('?')[0]);
 });
+
+exports.createBooking = factory.createOne(Booking);
+exports.getBooking = factory.getOne(Booking);
+exports.getAllBookings = factory.getAll(Booking);
+exports.updateBooking = factory.updateOne(Booking);
+exports.deleteBooking = factory.deleteOne(Booking);
