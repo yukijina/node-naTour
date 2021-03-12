@@ -18,6 +18,9 @@ const bookingRouter = require('./routes/bookingRoutes');
 
 const app = express();
 
+// this enable to access req.secure (function is in authController)
+app.enable('trust proxy');
+
 app.set('view engine', 'pug');
 app.set('views', path.join(__dirname, 'views'));
 
