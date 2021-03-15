@@ -48,3 +48,12 @@ process.on('unhandleRehection', err => {
     process.exit(1);
   });
 });
+
+// Sigterm signal for Heroku
+// for testing, in terminal, heroku ps, heroku ps:restart (it will show 'done'), heroku logs --tail
+process.on('SIGTERM', () => {
+  console.log('Sigterm received. Shutting doune gracefully');
+  server.close(() => {
+    console.log('Process terminated');
+  });
+});
