@@ -5,6 +5,7 @@ const catchAsync = require('./../utils/catchAsync');
 const factory = require('./handlerFactory');
 const AppError = require('./../utils/appError');
 
+// must use multer to get file(image) from frontend
 const multerStorage = multer.memoryStorage();
 
 const multerFilter = (req, file, cb) => {

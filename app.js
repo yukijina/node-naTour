@@ -7,6 +7,7 @@ const mongoSanitize = require('express-mongo-sanitize');
 const xss = require('xss-clean');
 const hpp = require('hpp');
 const cookieParser = require('cookie-parser');
+const bodyParser = require('body-parser');
 const compression = require('compression');
 const cors = require('cors');
 const AppError = require('./utils/appError');
@@ -16,6 +17,7 @@ const userRouter = require('./routes/userRoutes');
 const reviewRouter = require('./routes/reviewRoutes');
 const viewRouter = require('./routes/viewRoutes');
 const bookingRouter = require('./routes/bookingRoutes');
+const bookingController = require('./controllers/bookingController');
 
 const app = express();
 
@@ -52,8 +54,15 @@ const limiter = ratelimit({
 // all api routes
 app.use('/api', limiter);
 
+// Not json - body should be row data - this code should be put before json parser
+app.post(
+  '/webhook-checkout',
+  bodyParser.row({ type: 'application/json' }),
+  bookingController.webhookcheckout
+);
+
 //// BODY PARSER, reading data from req.body - modify the incoming data - app uses that middleware
-app.use(express.json({ limit: '10kb' })); //jsondata accept upto 10kb
+app.use(express.json({ limit: '10kb' })); //json data accept upto 10kb
 app.use(express.urlencoded({ extended: true, limit: '10kb' })); //get login input form data
 app.use(cookieParser());
 
